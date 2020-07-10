@@ -1,0 +1,13 @@
+{
+  "elastic": {
+    "node": "https://beast-development-6415044234.us-east-1.bonsaisearch.net:443",
+    "password": "q43sqkglfj",
+    "username": "wnhxyx0sfm"
+  },
+  "mercado_pago": {
+    "access_token": "TEST-1142675697693721-050822-75ce193414b73e3eba72f7daf266c89f-178377231",
+    "redirect_uri": "https://beast-production.web.app",
+    "oauth_url": "https://api.mercadopago.com/oauth",
+    "timeout": "5000"
+  }
+}

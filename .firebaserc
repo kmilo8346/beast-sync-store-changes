@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "beast-development",
+    "development": "beast-development",
+    "staging": "beast-staging",
+    "production": "beast-production"
+  }
+}
