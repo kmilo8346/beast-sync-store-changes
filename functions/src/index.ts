@@ -21,41 +21,27 @@ exports.syncStoreChanges = functions.firestore
      *
      */
 
-    // User update:
-    if (!prevUser || !newUser) {
-      functions.logger.info(
-        `${prefix} User must be defined previosly to take action`,
-      );
+    // Validate newUser´s store is defined:
+    if (!newUser?.store) {
+      functions.logger.info(`${prefix} Store must be defined`);
       return;
     }
 
-    // Version upgrade:
-    if (prevUser.store?.version >= newUser.store?.version) {
+    // Version not changed:
+    if (prevUser && prevUser.store?.version === newUser.store?.version) {
       functions.logger.info(`${prefix} Store version was not changed`);
-      return;
-    }
-
-    // MP customerId:;
-    if (!newUser.mercadoPago?.customerId) {
-      functions.logger.info(
-        `${prefix} User don´t has userId on mercadoPago pero no importa ;)`,
-      );
       return;
     }
 
     // Log version info:
     functions.logger.info(
-      `${prefix} Store ${newUser.store.id} have been updated from version: ${prevUser.store.version}, to: ${newUser.store.version}`,
+      `${prefix} Store ${newUser.store.id} have been updated to version: ${newUser.store.version}`,
     );
 
     // Update proccess:
     try {
       // run elastic query to update all productos with a store with a version lower
       functions.logger.info(`${prefix} Updating user data...`);
-
-      // check for elastic health:
-      const health = await elastic.cluster.health();
-      functions.logger.info('Elastic health status: ', health?.body?.status);
 
       const { body } = await elastic.updateByQuery({
         index: 'products-*',
@@ -69,7 +55,7 @@ exports.syncStoreChanges = functions.firestore
               },
               filter: {
                 'store.version': {
-                  lte: newUser.store.version,
+                  lt: newUser.store.version,
                 },
               },
             },
@@ -80,18 +66,10 @@ exports.syncStoreChanges = functions.firestore
         },
       });
 
-      // On UPDATE OK
-      if (body.statusCode === 200) {
-        functions.logger.info(
-          `${prefix} - ${body.took.updated} products were SUCCESSFULLY UPDATED !`,
-        );
-      } else {
-        throw new Error(
-          `${prefix} - Something went wrong, update´s statusCode: ${body.statusCode}`,
-        );
-      }
+      functions.logger.info(
+        `${prefix} - ${body.took.updated} products were SUCCESSFULLY UPDATED !`,
+      );
     } catch (error) {
-      // ON Elastic error
-      functions.logger.error(`${prefix} Elastic Error: ${error}`);
+      functions.logger.error(`${prefix} Unspected error:`, error);
     }
   });
