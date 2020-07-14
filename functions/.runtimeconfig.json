@@ -1,9 +1,0 @@
-{
-  "elastic": {
-    "password": "q43sqkglfj",
-    "username": "wnhxyx0sfm",
-    "max_retries": "3",
-    "request_timeout": "6000",
-    "node": "https://beast-development-6415044234.us-east-1.bonsaisearch.net:443"
-  }
-}
