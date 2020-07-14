@@ -17,12 +17,14 @@
   "dependencies": {
     "@elastic/elasticsearch": "^7.8.0",
     "firebase-admin": "^8.10.0",
-    "firebase-functions": "^3.6.1"
+    "firebase-functions": "^3.6.1",
+    "snakecase-keys": "^3.2.0"
   },
   "devDependencies": {
+    "@types/circle-to-polygon": "^2.0.0",
+    "firebase-functions-test": "^0.2.0",
     "tslint": "^5.12.0",
-    "typescript": "^3.8.0",
-    "firebase-functions-test": "^0.2.0"
+    "typescript": "^3.8.0"
   },
   "private": true
 }
