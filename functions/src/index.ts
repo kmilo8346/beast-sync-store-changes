@@ -17,6 +17,8 @@ const createIndexIfNotExist = async (index: string, body: any) => {
   }
 };
 
+functions.logger.info(`${prefix} Current project`, process.env.FIREBASE_CONFIG);
+
 exports.syncStoreChanges = functions.firestore
   .document("users/{userId}")
   .onWrite(async (change, context) => {
@@ -47,7 +49,13 @@ exports.syncStoreChanges = functions.firestore
             properties: {
               id: { type: "keyword" },
               delivery_time: { type: "integer_range" },
-              delivery_area: { type: "geo_shape", "strategy" : "recursive" },
+              delivery_area: {
+                properties: {
+                  geometry: {
+                    type: "geo_shape", "strategy" : "recursive"
+                  }
+                }
+              },
               opening_hours: { type: "nested" },
             },
           },
@@ -62,7 +70,13 @@ exports.syncStoreChanges = functions.firestore
                 properties: {
                   id: { type: "keyword" },
                   delivery_time: { type: "integer_range" },
-                  delivery_area: { type: "geo_shape", "strategy" : "recursive" },
+                  delivery_area: {
+                    properties: {
+                      geometry: {
+                        type: "geo_shape", "strategy" : "recursive"
+                      }
+                    }
+                  },
                   opening_hours: { type: "nested" },
                 },
               },
@@ -70,26 +84,8 @@ exports.syncStoreChanges = functions.firestore
           },
         }),
       ]);
-
-      // creating new store
-      let newStore = { ...newUser.store };
-      if (newStore.deliveryArea) {
-        newStore.deliveryArea = {
-          "type": "circle",
-          "radius": newUser.store.deliveryArea.radius,
-          "coordinates": [
-            newUser.store.deliveryArea.center.geometry.location.lng,
-            newUser.store.deliveryArea.center.geometry.location.lat,
-          ]
-        }
-        functions.logger.info(
-          `${prefix} Generated area`,
-          newStore.deliveryArea
-        );
-      }
-
       // converting to sanke case
-      newStore = snakeCaseKeys(newStore, { deep: true });
+      const newStore = snakeCaseKeys(newUser.store, { deep: true });
 
       functions.logger.info(`${prefix} Upserting store and updating products store info`, newStore);
       const results = await Promise.all([
